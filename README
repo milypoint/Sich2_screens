@@ -1,1 +1,7 @@
-This poject was created for my friend which wont give images 
+This project was created for my friend which wanted get images simplified 3d model satellite Sich-2 in at different angles relative 
+orientation. 
+These images need to test the orientation of the satellite recognition algorithm. For this i wrote a some macro, which makes large part of 
+work. It turning the model itself at a certain angle on the three axes and creates an image.
+Step rotation can be changed by changing the value of the variable "Step" in degrees.
+After the passage of the entire cycle of making images, macro creates multiple images with random orientation angles.
+All images are recorded with a file name that contains the number and angles of orientation.
