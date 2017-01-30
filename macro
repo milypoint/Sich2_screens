@@ -1,3 +1,4 @@
+Attribute VB_Name = "ModelScreenCreator1"
 Option Explicit
 
 Dim swApp As Object
@@ -12,6 +13,9 @@ Public Const Test_Screens_dir As String = "C:\ScreensModel\TEST_Screens\"
 Public Const Step As Integer = 60
 Public Const Num_pos As Integer = 360 / Step - 1
 Public Const SumTestScreens As Integer = 20
+
+Public NameBody As String
+NameBody = "Тело-Переместить/Копировать6"
 
 Public Const BoolCreateAllScreens As Boolean = True 'For create main screenshots use True
 Public Const BoolCreateTestScreens As Boolean = False 'For create test screenshots use True
@@ -98,7 +102,7 @@ Function SetupFirstViev() As Boolean
     Application.SldWorks
     
     Set part = swApp.ActiveDoc
-    part.ShowNamedView2 "*Ñíèçó", 6
+    part.ShowNamedView2 "*Снизу", 6
     
     For reg = 0 To 5
         part.ViewZoomout
@@ -114,10 +118,10 @@ Function RotateModel(X As Double, Y As Double, Z As Double) As Boolean 'Create r
     Application.SldWorks
     
     Set part = swApp.ActiveDoc
-    boolstatus = part.Extension.SelectByID2("Âûðåç-Âûòÿíóòü2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, True, 0, Nothing, 0)
+    boolstatus = part.Extension.SelectByID2("Вырез-Вытянуть2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, True, 0, Nothing, 0)
     
     part.ClearSelection2 True
-    boolstatus = part.Extension.SelectByID2("Âûðåç-Âûòÿíóòü2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, False, 1, Nothing, 0)
+    boolstatus = part.Extension.SelectByID2("Вырез-Вытянуть2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, False, 1, Nothing, 0)
     Dim myFeature As Object
     
     Set myFeature = part.FeatureManager.InsertMoveCopyBody2(0, 0, 0, 0, 0, 0.05, 0, X, Y, Z, False, 1) 'x, y, z -- parameters
@@ -132,8 +136,8 @@ Function DeleteRotate() As Boolean 'Remove rotation
     Application.SldWorks
     
     Set part = swApp.ActiveDoc
-    boolstatus = part.Extension.SelectByID2("Òåëî-Ïåðåìåñòèòü/Êîïèðîâàòü6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
-    boolstatus = part.Extension.SelectByID2("Òåëî-Ïåðåìåñòèòü/Êîïèðîâàòü6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
+    boolstatus = part.Extension.SelectByID2("Тело-Переместить/Копировать6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
+    boolstatus = part.Extension.SelectByID2("Тело-Переместить/Копировать6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
     part.EditDelete
     
     DeleteRotate = True
