@@ -1,0 +1,180 @@
+Option Explicit
+
+Dim swApp As Object
+
+Dim part As Object
+Dim boolstatus As Boolean
+Dim longstatus As Long, longwarnings As Long
+
+Public Const Screens_dir As String = "C:\ScreensModel\"
+Public Const Test_Screens_dir As String = "C:\ScreensModel\TEST_Screens\"
+
+Public Const Step As Integer = 60
+Public Const Num_pos As Integer = 360 / Step - 1
+Public Const SumTestScreens As Integer = 20
+
+Public Const BoolCreateAllScreens As Boolean = True 'For create main screenshots use True
+Public Const BoolCreateTestScreens As Boolean = False 'For create test screenshots use True
+
+
+Sub main()
+
+    'S = Test()
+    
+    Set swApp = Application.SldWorks
+    
+    Dim S As Boolean
+    Dim aid_ox As Integer, aid_oy As Integer, aid_oz As Integer 'angle in degrees
+    Dim first_aid_ox As Integer, first_aid_oy As Integer, first_aid_oz As Integer
+    Dim NumScreen As Long 'number Screen
+    Dim reg As Integer
+    
+    first_aid_ox = 0 / Step
+    first_aid_oy = 0 / Step
+    first_aid_oz = 0 / Step
+    
+    NumScreen = 0
+    
+    S = SetupFirstViev() 'Set first viev model
+    
+    TestScreen
+    
+    If BoolCreateAllScreens = True Then
+        For aid_ox = first_aid_ox To Num_pos
+            For aid_oy = first_aid_oy To Num_pos
+                For aid_oz = first_aid_oz To Num_pos
+                    S = RotateModel(aid_ox * Step * 3.14 / 180, aid_oy * Step * 3.14 / 180, aid_oz * Step * 3.14 / 180)
+                    S = Screen(Screens_dir, FileNameGenerator(CStr(NumScreen), aid_ox * Step, aid_oy * Step, aid_oz * Step))
+                    NumScreen = NumScreen + 1
+                    S = DeleteRotate()
+                Next aid_oz
+            Next aid_oy
+        Next aid_ox
+    End If
+    
+    If BoolCreateTestScreens = True Then
+        For reg = 1 To SumTestScreens
+            aid_ox = RandAngle()
+            aid_oy = RandAngle()
+            aid_oz = RandAngle()
+            S = RotateModel(aid_ox * 3.14 / 180, aid_oy * 3.14 / 180, aid_oz * 3.14 / 180)
+            S = Screen(Test_Screens_dir, FileNameGenerator("TEST", aid_ox, aid_oy, aid_oz))
+            S = DeleteRotate()
+        Next reg
+    End If
+
+End Sub
+
+Function TestScreen() As Boolean
+    Dim Bool As Boolean
+    Dim X As Integer
+    Dim Y As Integer
+    Dim Z As Integer
+
+    X = 0
+    Y = 0
+    Z = 0
+    
+    Bool = SetupFirstViev()
+    
+    Bool = RotateModel(X * 3.14 / 180, Y * 3.14 / 180, Z * 3.14 / 180)
+    Bool = Screen(Test_Screens_dir, FileNameGenerator("TEST", X, Y, Z))
+    Bool = DeleteRotate()
+    
+    Set part = swApp.ActiveDoc
+    boolstatus = part.SetUserPreferenceToggle(swUserPreferenceToggle_e.swDisplayReferencePoints2, False)
+    
+    TestScreen = True
+End Function
+
+Function SetupFirstViev() As Boolean
+
+    Dim reg As Integer
+    
+    Set part = swApp.ActiveDoc
+    boolstatus = part.SetUserPreferenceToggle(swUserPreferenceToggle_e.swDisplayReferencePoints2, True) 'Activate point viev
+    
+    Set swApp = _
+    Application.SldWorks
+    
+    Set part = swApp.ActiveDoc
+    part.ShowNamedView2 "*Ñíèçó", 6
+    
+    For reg = 0 To 5
+        part.ViewZoomout
+    Next reg
+    
+    SetupFirstViev = True
+
+End Function
+
+Function RotateModel(X As Double, Y As Double, Z As Double) As Boolean 'Create rotation
+    
+    Set swApp = _
+    Application.SldWorks
+    
+    Set part = swApp.ActiveDoc
+    boolstatus = part.Extension.SelectByID2("Âûðåç-Âûòÿíóòü2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, True, 0, Nothing, 0)
+    
+    part.ClearSelection2 True
+    boolstatus = part.Extension.SelectByID2("Âûðåç-Âûòÿíóòü2", "SOLIDBODY", 1.27987954074911E-02, 6.44778177554745E-02, 5.00000000000114E-02, False, 1, Nothing, 0)
+    Dim myFeature As Object
+    
+    Set myFeature = part.FeatureManager.InsertMoveCopyBody2(0, 0, 0, 0, 0, 0.05, 0, X, Y, Z, False, 1) 'x, y, z -- parameters
+    
+    RotateModel = True
+
+End Function
+
+Function DeleteRotate() As Boolean 'Remove rotation
+
+    Set swApp = _
+    Application.SldWorks
+    
+    Set part = swApp.ActiveDoc
+    boolstatus = part.Extension.SelectByID2("Òåëî-Ïåðåìåñòèòü/Êîïèðîâàòü6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
+    boolstatus = part.Extension.SelectByID2("Òåëî-Ïåðåìåñòèòü/Êîïèðîâàòü6", "BODYFEATURE", 0, 0, 0, False, 0, Nothing, 0)
+    part.EditDelete
+    
+    DeleteRotate = True
+
+End Function
+
+Function FileNameGenerator(n As String, X As Integer, Y As Integer, Z As Integer) As String
+
+    FileNameGenerator = Add0(n, 4) + "_" + Add0(CStr(X), 3) + "_" + Add0(CStr(Y), 3) + "_" + Add0(CStr(Z), 3) + ".PNG"
+    
+End Function
+
+Function Screen(dir As String, name As String) As Boolean
+
+    Set part = swApp.ActiveDoc
+    longstatus = part.SaveAs3(dir + name, 0, 0)
+    
+    Screen = True
+
+End Function
+
+Function Add0(str As String, len_str As Integer) As String
+        Do While Len(str) < len_str
+            str = "0" + str
+        Loop
+        Add0 = str
+End Function
+
+Function RandAngle() As Integer
+    Dim angle As Integer
+    Dim r As Integer
+        
+    Do While True
+        angle = Int((359 * Rnd) + 1)
+        For r = 0 To Num_pos
+            If angle = r * Step Then
+                Exit For
+            End If
+        Next r
+        RandAngle = CInt(angle)
+        Exit Do
+    Loop
+    
+End Function
