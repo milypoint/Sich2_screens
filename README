@@ -5,3 +5,4 @@ work. It turning the model itself at a certain angle on the three axes and creat
 Step rotation can be changed by changing the value of the variable "Step" in degrees.
 After the passage of the entire cycle of making images, macro creates multiple images with random orientation angles.
 All images are recorded with a file name that contains the number and angles of orientation.
+
