@@ -23,8 +23,6 @@ Public Const BoolCreateTestScreens As Boolean = False 'For create test screensho
 
 Sub main()
 
-    'S = Test()
-    
     Set swApp = Application.SldWorks
     
     Dim S As Boolean
